@@ -1,0 +1,142 @@
+{% extends 'base.html' %}{% from 'macros.html' import icon %}
+{% block title %}Predict Customer Churn Before It Happens{% endblock %}
+{% block body_class %}landing{% endblock %}
+{% block content %}
+  <section class="hero">
+    <div class="container app-container">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow-pill"><span class="live-dot"></span> CUSTOMER INTELLIGENCE, SIMPLIFIED</span>
+          <h1>
+            Predict Customer
+            <br>
+            Churn <span>Before
+            <br>
+          It Happens.</span>
+        </h1>
+        <p>
+          Use machine learning to identify customers who may be at risk of leaving. Turn customer details into clear, actionable visibility.
+        </p>
+        <div class="hero-actions">
+          <a href="{{ url_for('prediction.predict') }}"
+             class="btn btn-primary btn-lg">Try prediction {{ icon("arrow-right") }}</a><a href="{{ url_for('auth.login') }}"
+   class="btn btn-outline-secondary btn-lg">Log in {{ icon("arrow-up-right") }}</a>
+        </div>
+        <div class="hero-footnote">
+          {{ icon("shield") }} Secure accounts <span>·</span> Transparent model evaluation
+        </div>
+      </div>
+      <div class="hero-visual"
+           aria-label="Illustration of the customer analytics interface">
+        <div class="visual-orbit orbit-one"></div>
+        <div class="visual-orbit orbit-two"></div>
+        <div class="insight-window">
+          <div class="window-bar">
+            <div>
+              <i></i><i></i><i></i>
+            </div>
+            <span>Customer intelligence</span>{{ icon("layers") }}
+          </div>
+          <div class="preview-content">
+            <div class="preview-header">
+              <div>
+                <span class="eyebrow">THE BIGGER PICTURE</span>
+                <h3>Every customer tells a story.</h3>
+              </div>
+              <span class="icon-tile purple">{{ icon("chart") }}</span>
+            </div>
+            <div class="signal-grid">
+              <div>
+                <small>Customer signals</small><strong>19<span>features</span></strong>
+              </div>
+              <div>
+                <small>Model comparison</small><strong>3<span>algorithms</span></strong>
+              </div>
+            </div>
+            <div class="preview-chart">
+              <div class="preview-chart-label">
+                <span>Understand the patterns</span><span class="soft-tag">Machine learning</span>
+              </div>
+              <svg viewBox="0 0 440 150"
+                   role="img"
+                   aria-label="Decorative trend illustration">
+                <defs><linearGradient id="trend-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7365e8" stop-opacity="0.23" /><stop offset="100%" stop-color="#7365e8" stop-opacity="0" /></linearGradient></defs>
+                <path d="M0 25H440M0 70H440M0 115H440" stroke="#edf0f5" />
+                <path d="M0 118C35 115 45 75 80 82S118 111 151 78 198 83 230 53 265 78 305 37 358 55 388 24 420 28 440 12V150H0Z" fill="url(#trend-fill)" />
+                <path d="M0 118C35 115 45 75 80 82S118 111 151 78 198 83 230 53 265 78 305 37 358 55 388 24 420 28 440 12" fill="none" stroke="#7365e8" stroke-width="3" />
+              </svg>
+              <small class="text-muted">Illustrative interface preview</small>
+            </div>
+            <div class="preview-bottom">
+              <span class="icon-tile teal">{{ icon("shield") }}</span>
+              <div>
+                <strong>Privacy by design</strong><small>100% synthetic telecom data</small>
+              </div>
+              {{ icon("check") }}
+            </div>
+          </div>
+        </div>
+        <div class="floating-chip">
+          <span class="icon-tile purple">{{ icon("sparkles") }}</span>
+          <div>
+            <strong>Clarity, at a glance</strong><small>Probability · risk · history</small>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tech-strip">
+      <span>BUILT WITH A TRUSTED STACK</span>
+      <div>Python</div>
+      <div>Flask</div>
+      <div>scikit-learn</div>
+      <div>Pandas</div>
+      <div>Bootstrap</div>
+      <div>SQLite</div>
+    </div>
+  </div>
+</section>
+<section id="features" class="section-pad">
+  <div class="container app-container">
+    <div class="section-heading">
+      <span class="eyebrow">FROM DATA TO UNDERSTANDING</span>
+      <h2>Everything you need to see the risk.</h2>
+      <p>A complete workflow for exploring customer retention with machine learning.</p>
+    </div>
+    <div class="feature-grid">
+      {% for symbol, title, text in [('sparkles', 'Machine learning prediction', 'Compare three algorithms and score customers with a reliable preprocessing pipeline.'), ('shield', 'Customer risk analysis', 'Explore churn probability and clear risk bands for each customer profile.'), ('layers', 'Prediction history', 'Keep every assessment in one place, with a dashboard built around your work.'), ('chart', 'Admin analytics', 'Explore trends, dataset statistics, and transparent model performance.')] %}
+      <article class="feature-card"><span class="icon-tile purple">{{ icon(symbol) }}</span>
+      <h3>{{ title }}</h3>
+      <p>{{ text }}</p>
+    </article>
+  {% endfor %}
+</div>
+</div>
+</section>
+<section id="how-it-works" class="section-pad steps-section">
+  <div class="container app-container">
+    <div class="section-heading">
+      <span class="eyebrow">A SIMPLE, THOUGHTFUL WORKFLOW</span>
+      <h2>Three steps. A clearer picture.</h2>
+    </div>
+    <div class="steps-grid">
+      {% for title, text in [('Enter customer information', 'Add the customer’s services, contract, and billing details.'), ('Machine learning analyzes the data', 'The saved model processes the same features used during training.'), ('View churn probability', 'See the estimated probability and save the assessment to your history.')] %}
+        <div class="step">
+          <span class="step-number">0{{ loop.index }}</span>
+          <h3>{{ title }}</h3>
+          <p>{{ text }}</p>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="cta-card">
+      <div>
+        <h2>Your next insight starts here.</h2>
+        <p>Explore the demo, make a prediction, and see the complete picture.</p>
+      </div>
+      <a class="btn btn-primary btn-lg" href="{{ url_for('auth.register') }}">Create your account {{ icon("arrow-right") }}</a>
+    </div>
+    <p class="demo-disclaimer">
+      An educational portfolio project using synthetic data. Estimates do not establish real-world customer risk.
+    </p>
+  </div>
+</section>
+{% endblock %}

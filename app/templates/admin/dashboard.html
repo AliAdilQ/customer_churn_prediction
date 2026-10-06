@@ -1,0 +1,92 @@
+{% extends 'admin/base_admin.html' %}{% from 'macros.html' import icon, stat, prediction_table %}
+{% block title %}Admin dashboard{% endblock %}
+{% block content %}
+  <div class="page-heading">
+    <div>
+      <span class="eyebrow">THE BIGGER PICTURE</span>
+      <h1>Dashboard overview</h1>
+      <p>Your customer prediction activity, all in one place.</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('admin.predictions') }}">Explore predictions {{ icon("arrow-right") }}</a>
+  </div>
+  <div class="stats-grid four">
+    {{ stat('Registered users', stats.users, 'users', 'Includes administrators') }}{{ stat('Total predictions', stats.total, 'layers', 'Across all user accounts', 'blue') }}{{ stat('Likely to churn', stats.churn, 'chart', (stats.rate|percent) ~ ' of all predictions', 'rose') }}{{ stat('Likely to stay', stats.stay, 'shield', 'Scores below the 50% threshold', 'teal') }}
+  </div>
+  <div class="admin-chart-grid">
+    <section class="panel">
+      <div class="panel-heading">
+        <div>
+          <h2>Prediction activity</h2>
+          <p>Number of assessments per day.</p>
+        </div>
+        <span class="soft-tag">Last 14 days</span>
+      </div>
+      <div class="chart-box line-chart">
+        <canvas data-chart="timeline"
+                role="img"
+                aria-label="Predictions in the last fourteen days"></canvas>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="panel-heading">
+        <div>
+          <h2>Churn distribution</h2>
+          <p>All saved predictions</p>
+        </div>
+        {{ icon("chart") }}
+      </div>
+      <div class="chart-box doughnut admin-doughnut">
+        <canvas data-chart="distribution"
+                role="img"
+                aria-label="Churn versus stay predictions"></canvas>
+      </div>
+      <div class="distribution-footer">
+        <div>
+          <strong>{{ stats.rate|percent }}</strong><span>Predicted churn rate</span>
+        </div>
+        <span class="soft-tag">{{ stats.total }} records</span>
+      </div>
+    </section>
+  </div>
+  <div class="two-column">
+    <section class="panel">
+      <div class="panel-heading">
+        <div>
+          <h2>Contract mix</h2>
+          <p>Contract types in saved predictions.</p>
+        </div>
+        {{ icon("credit-card") }}
+      </div>
+      <div class="chart-box compact-chart">
+        <canvas data-chart="contracts"
+                role="img"
+                aria-label="Saved prediction contract distribution"></canvas>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="panel-heading">
+        <div>
+          <h2>Internet services</h2>
+          <p>Services in saved predictions.</p>
+        </div>
+        {{ icon("wifi") }}
+      </div>
+      <div class="chart-box compact-chart">
+        <canvas data-chart="internet"
+                role="img"
+                aria-label="Saved prediction internet service distribution"></canvas>
+      </div>
+    </section>
+  </div>
+  <section class="panel table-panel">
+    <div class="panel-heading">
+      <div>
+        <h2>Recent predictions</h2>
+        <p>The latest assessments across your workspace.</p>
+      </div>
+      <a class="text-link" href="{{ url_for('admin.predictions') }}">View all {{ icon("arrow-right") }}</a>
+    </div>
+    {{ prediction_table(records, true) }}
+  </section>
+  <script type="application/json" id="chart-data">{{ charts|tojson }}</script>
+{% endblock %}

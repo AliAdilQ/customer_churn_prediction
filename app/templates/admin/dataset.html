@@ -1,0 +1,99 @@
+{% extends 'admin/base_admin.html' %}{% from 'macros.html' import icon, stat %}
+{% block title %}Dataset explorer{% endblock %}
+{% block breadcrumb %}Dataset{% endblock %}
+{% block content %}
+  <div class="page-heading">
+    <div>
+      <span class="eyebrow">UNDERSTAND THE SOURCE</span>
+      <h1>Dataset explorer</h1>
+      <p>A closer look at the synthetic telecom training data.</p>
+    </div>
+    <span class="eyebrow-pill">{{ icon("database") }} customer_churn.csv</span>
+  </div>
+  <div class="stats-grid four">
+    {{ stat('Customer records', '{:,}'.format(stats.records) , 'users', stats.columns|string ~ ' columns · 19 features') }}{{ stat('Dataset churn rate', stats.rate|percent, 'chart', 'Observed synthetic labels', 'rose') }}{{ stat('Average tenure', '%0.1f months'|format(stats.tenure) , 'clock', 'Across the full dataset', 'blue') }}{{ stat('Average monthly bill', '$%0.2f'|format(stats.charges) , 'credit-card', 'Excludes missing billing values', 'teal') }}
+  </div>
+  <div class="admin-chart-grid">
+    <section class="panel">
+      <div class="panel-heading">
+        <div>
+          <h2>Contract type vs. churn</h2>
+          <p>Label counts across each contract type.</p>
+        </div>
+        <span class="soft-tag">Synthetic labels</span>
+      </div>
+      <div class="chart-box line-chart">
+        <canvas data-chart="contracts"
+                data-kind="stacked"
+                role="img"
+                aria-label="Contract types versus churn labels"></canvas>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="panel-heading">
+        <div>
+          <h2>Target distribution</h2>
+          <p>Churn labels in the dataset.</p>
+        </div>
+        {{ icon("chart") }}
+      </div>
+      <div class="chart-box doughnut admin-doughnut">
+        <canvas data-chart="distribution"
+                role="img"
+                aria-label="Dataset churn distribution"></canvas>
+      </div>
+    </section>
+  </div>
+  <section class="panel mb-4">
+    <div class="panel-heading">
+      <div>
+        <h2>Internet service vs. churn</h2>
+        <p>Label counts across internet services.</p>
+      </div>
+      {{ icon("wifi") }}
+    </div>
+    <div class="chart-box compact-chart">
+      <canvas data-chart="internet"
+              data-kind="stacked"
+              role="img"
+              aria-label="Internet service versus churn labels"></canvas>
+    </div>
+  </section>
+  <section class="panel table-panel">
+    <div class="panel-heading">
+      <div>
+        <h2>Dataset preview</h2>
+        <p>First eight records · selected columns for readability.</p>
+      </div>
+      <span class="soft-tag">{{ stats.missing }} missing cells</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table app-table mb-0">
+        <thead>
+          <tr>
+            {% for field in fields %}<th>{{ field.replace('_', ' ') |title }}</th>{% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in preview %}
+            <tr>
+              {% for field in fields %}
+                <td>
+                  {% if field == 'churn' %}
+                    <span class="status-badge {{ 'danger' if row[field] == 'Yes' else 'success' }}">{{ row[field] }}</span>
+                  {% else %}
+                    {{ row[field] }}
+                  {% endif %}
+                </td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <div class="info-note mt-4">
+    {{ icon("shield") }}<span>Generated for education with seed 42. No real personal information. Billing fields contain intentional missing values; training folds fit their own imputers.</span>
+  </div>
+  <script type="application/json" id="chart-data">{{ charts|tojson }}</script>
+{% endblock %}

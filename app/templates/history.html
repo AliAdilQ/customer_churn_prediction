@@ -1,0 +1,33 @@
+{% extends 'base.html' %}{% from 'macros.html' import icon, pagination, prediction_table %}
+{% block title %}Prediction history{% endblock %}
+{% block content %}
+  <div class="container app-container page-content">
+    <div class="page-heading">
+      <div>
+        <span class="eyebrow">YOUR CUSTOMER ASSESSMENTS</span>
+        <h1>Prediction history</h1>
+        <p>Every assessment, ready whenever you need it.</p>
+      </div>
+      <a class="btn btn-primary" href="{{ url_for('prediction.predict') }}">{{ icon("plus") }} New prediction</a>
+    </div>
+    <section class="panel table-panel">
+      <div class="panel-heading">
+        <h2>
+          All predictions <span class="count-tag">{{ page.total }}</span>
+        </h2>
+        <form class="filter-form" method="get">
+          <label class="visually-hidden" for="outcome">Filter outcome</label>
+          <select class="form-select" name="outcome" id="outcome">
+            <option value="">All outcomes</option>
+            <option value="Yes" {{ 'selected' if outcome == 'Yes' }}>Likely to churn
+            </option>
+            <option value="No" {{ 'selected' if outcome == 'No' }}>Likely to stay
+            </option>
+          </select>
+          <button class="btn btn-outline-secondary" type="submit">Filter</button>
+        </form>
+      </div>
+      {{ prediction_table(page.items) }}{{ pagination(page, 'prediction.history', {'outcome': outcome}) }}
+    </section>
+  </div>
+{% endblock %}

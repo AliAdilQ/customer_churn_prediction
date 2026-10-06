@@ -1,0 +1,67 @@
+{% extends 'base.html' %}{% from 'macros.html' import icon %}
+{% block styles %}
+  <link rel="stylesheet"
+        href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+{% block body_class %}admin-body{% endblock %}
+{% block navigation %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block layout %}
+  <div class="admin-shell">
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <a class="brand" href="{{ url_for('main.index') }}"><span class="brand-mark">{{ icon("pulse") }}</span>Churn<span>Lens</span></a><span class="admin-workspace-label">ADMIN WORKSPACE</span>
+      <nav class="sidebar-nav" aria-label="Admin navigation">
+        {% for endpoint, label, symbol in [('admin.dashboard', 'Dashboard', 'dashboard'), ('admin.users', 'Users', 'users'), ('admin.predictions', 'Predictions', 'layers'), ('admin.dataset', 'Dataset', 'database'), ('admin.model', 'Model information', 'sparkles')] %}
+          <a class="{{ 'active' if request.endpoint == endpoint }}"
+             href="{{ url_for(endpoint) }}">{{ icon(symbol) }}{{ label }}
+            {% if request.endpoint == endpoint %}<span class="sidebar-active-dot"></span>{% endif %}
+          </a>
+        {% endfor %}
+      </nav>
+      <div class="sidebar-note">
+        <span class="icon-tile">{{ icon("shield") }}</span><strong>Built for exploration.</strong>
+        <p>A complete ML workflow, powered by synthetic telecom data.</p>
+        <a href="{{ url_for('prediction.predict') }}">Try a prediction {{ icon("arrow-right") }}</a>
+      </div>
+      <div class="sidebar-bottom">
+        <a href="{{ url_for('main.dashboard') }}">{{ icon("arrow-up-right") }} User workspace</a>
+        <form method="post" action="{{ url_for('auth.logout') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit">{{ icon("logout") }} Sign out</button>
+        </form>
+        <div class="sidebar-profile">
+          <span class="avatar">{{ current_user.initials }}</span>
+          <div>
+            <strong>{{ current_user.name }}</strong><span>Administrator</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <div>
+          <button class="sidebar-toggle text-button"
+                  id="sidebar-toggle"
+                  aria-label="Toggle admin navigation"
+                  aria-controls="admin-sidebar"
+                  aria-expanded="false">{{ icon("menu") }}</button>
+          <span>Workspace <span class="breadcrumb-slash">/</span> <strong>
+            {% block breadcrumb %}Overview{% endblock %}
+          </strong></span>
+        </div>
+        <div>
+          <span class="environment-pill"><span class="live-dot"></span> Synthetic data demo</span><span class="admin-badge">ADMIN</span><span class="avatar small">{{ current_user.initials }}</span>
+        </div>
+      </header>
+      <main id="main-content" class="admin-content">
+        {% include 'partials/flashes.html' %}
+        {% block content %}{% endblock %}
+        <footer class="admin-footer">
+          <span>Customer Churn Prediction <span>·</span> Built by <a href="https://github.com/AliAdilQ">AliAdilQ</a></span><span>All timestamps in UTC</span>
+        </footer>
+      </main>
+    </div>
+  </div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/admin.js') }}" defer></script>{% endblock %}

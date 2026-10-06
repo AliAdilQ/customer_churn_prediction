@@ -1,0 +1,61 @@
+{% extends 'base.html' %}{% from 'macros.html' import icon %}
+{% block title %}Log in{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block content %}
+  <div class="container app-container auth-layout">
+    <aside class="auth-story">
+      <span class="eyebrow-pill">A CLEARER VIEW OF CUSTOMER RETENTION</span>
+      <h1>
+        Welcome back.
+        <br>
+        <span>Your insights await.</span>
+      </h1>
+      <p>Bring customer data into focus with a workspace for prediction, exploration, and learning.</p>
+      <div class="auth-story-list">
+        <span>{{ icon("shield") }} Your history stays in your account</span><span>{{ icon("chart") }} Every score backed by a trained model</span><span>{{ icon("layers") }} A complete customer view in one place</span>
+      </div>
+      <div class="auth-story-note">
+        Customer Churn Prediction <span>by AliAdilQ</span>
+      </div>
+    </aside>
+    <section class="auth-card">
+      <span class="icon-tile purple">{{ icon("lock") }}</span>
+      <h2>Log in to your workspace</h2>
+      <p>Good to see you again. Enter your details below.</p>
+      {% if error %}<div class="alert alert-danger" role="alert">{{ error }}</div>{% endif %}
+      <form method="post" data-loading>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="mb-4">
+          <label class="form-label" for="email">Email address</label>
+          <input class="form-control"
+                 type="email"
+                 id="email"
+                 name="email"
+                 autocomplete="email"
+                 required
+                 maxlength="254"
+                 placeholder="you@company.com"
+                 value="{{ email }}">
+        </div>
+        <div class="mb-4">
+          <label class="form-label" for="password">Password</label>
+          <input class="form-control"
+                 type="password"
+                 id="password"
+                 name="password"
+                 autocomplete="current-password"
+                 required
+                 maxlength="128"
+                 placeholder="Enter your password">
+        </div>
+        <button class="btn btn-primary w-100" type="submit">Log in {{ icon("arrow-right") }}</button>
+      </form>
+      <div class="auth-switch">
+        New to ChurnLens? <a href="{{ url_for('auth.register') }}">Create an account</a>
+      </div>
+      <div class="demo-hint">
+        {{ icon("info") }} <span>Exploring locally? Use <strong>john@example.com</strong> with <strong>User@12345</strong>.</span>
+      </div>
+    </section>
+  </div>
+{% endblock %}

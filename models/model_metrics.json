@@ -1,0 +1,101 @@
+{
+  "selected_algorithm": "Logistic Regression",
+  "metrics": {
+    "accuracy": 0.75,
+    "precision": 0.643979057591623,
+    "recall": 0.6,
+    "f1": 0.6212121212121212,
+    "roc_auc": 0.8377029947514665
+  },
+  "candidates": {
+    "Logistic Regression": {
+      "f1": 0.6662920229861399,
+      "accuracy": 0.7841666666666667,
+      "roc_auc": 0.8577338684779253,
+      "f1_std": 0.0279829960729489
+    },
+    "Random Forest": {
+      "f1": 0.6344736655234893,
+      "accuracy": 0.7704166666666667,
+      "roc_auc": 0.8480935473911702,
+      "f1_std": 0.03584936048140494
+    },
+    "Gradient Boosting": {
+      "f1": 0.6590950090933777,
+      "accuracy": 0.7833333333333333,
+      "roc_auc": 0.8546715807347948,
+      "f1_std": 0.025904059847571628
+    }
+  },
+  "selection_method": "5-fold stratified cross-validation F1 on training data only",
+  "dataset_size": 3000,
+  "train_size": 2400,
+  "test_size": 600,
+  "trained_at": "2026-10-05T16:18:55.964670+00:00",
+  "random_seed": 42,
+  "threshold": 0.5,
+  "features": [
+    "gender",
+    "senior_citizen",
+    "partner",
+    "dependents",
+    "tenure",
+    "phone_service",
+    "multiple_lines",
+    "internet_service",
+    "online_security",
+    "online_backup",
+    "device_protection",
+    "tech_support",
+    "streaming_tv",
+    "streaming_movies",
+    "contract",
+    "paperless_billing",
+    "payment_method",
+    "monthly_charges",
+    "total_charges"
+  ],
+  "dataset_sha256": "d739630c361c9e901ab274e07e344be14e04b9b9db59a625975f7f4f70722e70",
+  "model_version": "2026-10-05-d739630c361c",
+  "sklearn_version": "1.7.2",
+  "numpy_version": "2.2.6",
+  "churn_rate": 0.3416666666666667,
+  "confusion_matrix": [
+    [
+      327,
+      68
+    ],
+    [
+      82,
+      123
+    ]
+  ],
+  "classification_report": {
+    "Stay": {
+      "precision": 0.7995110024449877,
+      "recall": 0.8278481012658228,
+      "f1-score": 0.8134328358208955,
+      "support": 395.0
+    },
+    "Churn": {
+      "precision": 0.643979057591623,
+      "recall": 0.6,
+      "f1-score": 0.6212121212121212,
+      "support": 205.0
+    },
+    "accuracy": 0.75,
+    "macro avg": {
+      "precision": 0.7217450300183054,
+      "recall": 0.7139240506329114,
+      "f1-score": 0.7173224785165084,
+      "support": 600.0
+    },
+    "weighted avg": {
+      "precision": 0.7463709212867548,
+      "recall": 0.75,
+      "f1-score": 0.7477574249962309,
+      "support": 600.0
+    }
+  },
+  "limitations": "Synthetic data only. Probabilities are model estimates, not calibrated real-world churn rates. No causal explanations or fairness guarantees."
+}

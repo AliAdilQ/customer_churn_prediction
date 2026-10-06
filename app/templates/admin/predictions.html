@@ -1,0 +1,128 @@
+{% extends 'admin/base_admin.html' %}{% from 'macros.html' import icon, badge, pagination %}
+{% block title %}Manage predictions{% endblock %}
+{% block breadcrumb %}Predictions{% endblock %}
+{% block content %}
+  <div class="page-heading">
+    <div>
+      <span class="eyebrow">YOUR ASSESSMENT LIBRARY</span>
+      <h1>Prediction records</h1>
+      <p>Explore, filter, and manage customer assessments.</p>
+    </div>
+    <a class="btn btn-primary"
+       href="{{ url_for('admin.export_predictions', q=search, outcome=outcome, contract=contract) }}">{{ icon("download") }} Export CSV</a>
+  </div>
+  <section class="panel table-panel">
+    <div class="panel-heading">
+      <div>
+        <h2>
+          All predictions <span class="count-tag">{{ page.total }}</span>
+        </h2>
+        <p>Export includes every record matching the current filters.</p>
+      </div>
+    </div>
+    <form method="get" class="filters-bar">
+      <div class="search-field">
+        <label class="visually-hidden" for="q">Search user name or email</label>
+        {{ icon("search") }}
+        <input class="form-control"
+               id="q"
+               name="q"
+               value="{{ search }}"
+               placeholder="Search user name or email"
+               maxlength="100">
+      </div>
+      <label class="visually-hidden" for="outcome">Prediction outcome</label>
+      <select class="form-select" id="outcome" name="outcome">
+        <option value="">All outcomes</option>
+        <option value="Yes" {{ 'selected' if outcome == 'Yes' }}>Likely to churn
+        </option>
+        <option value="No" {{ 'selected' if outcome == 'No' }}>Likely to stay
+        </option>
+      </select>
+      <label class="visually-hidden" for="contract">Contract</label>
+      <select class="form-select" id="contract" name="contract">
+        <option value="">All contracts</option>
+        {% for option in contracts %}
+          <option {{ 'selected' if contract == option }}>{{ option }}
+          </option>
+        {% endfor %}
+      </select>
+      <button class="btn btn-outline-secondary" type="submit">{{ icon("filter") }} Apply</button>
+      {% if search or outcome or contract %}
+        <a class="text-link" href="{{ url_for('admin.predictions') }}">Reset</a>
+      {% endif %}
+    </form>
+    <div class="table-responsive">
+      <table class="table app-table mb-0">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Customer account</th>
+            <th>Prediction</th>
+            <th>Churn probability</th>
+            <th>Created (UTC)</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for record in page.items %}
+            <tr>
+              <td>
+                <div class="table-person">
+                  <span class="avatar small">{{ record.user.initials }}</span>
+                  <div>
+                    <strong>{{ record.user.name }}</strong><small>#{{ '%04d'|format(record.id) }}</small>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <strong>{{ record.customer_data.contract }}</strong><small>{{ record.customer_data.internet_service }} · {{ record.customer_data.tenure }} mo · ${{ '%0.2f'|format(record.customer_data.monthly_charges) }}/mo</small>
+              </td>
+              <td>{{ badge(record) }}</td>
+              <td>
+                <div class="prob-cell">
+                  <span>{{ record.probability|percent }}</span>
+                  <div class="mini-progress">
+                    <span class="risk-{{ record.risk|lower }}"
+                          style="width:{{ record.probability * 100 }}%"></span>
+                  </div>
+                </div>
+              </td>
+              <td>{{ record.created_at.strftime("%b %d, %Y") }}</td>
+              <td>
+                <div class="row-actions">
+                  <a class="table-action"
+                     href="{{ url_for('prediction.result', prediction_id=record.id) }}"
+                     aria-label="View prediction {{ record.id }}">{{ icon("arrow-up-right") }}</a>
+                  <form method="post"
+                        action="{{ url_for('admin.delete_prediction', prediction_id=record.id) }}"
+                        data-confirm="Delete prediction #{{ record.id }}? This permanently removes this assessment.">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="table-action delete-action"
+                            type="submit"
+                            aria-label="Delete prediction {{ record.id }}">{{ icon("trash") }}</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="6">
+                <div class="empty-state">
+                  {{ icon("search") }}
+                  <h3>No matching predictions</h3>
+                  <p>Try another search or clear your filters.</p>
+                  <a href="{{ url_for('admin.predictions') }}">Clear filters</a>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {{ pagination(page, 'admin.predictions', {'q': search, 'outcome': outcome, 'contract': contract}) }}
+  </section>
+  <div class="info-note mt-4">
+    {{ icon("info") }}<span>These records contain synthetic customer profiles. Churn probabilities are model estimates; risk categories are display bands.</span>
+  </div>
+{% endblock %}

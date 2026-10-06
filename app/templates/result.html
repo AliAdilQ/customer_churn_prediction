@@ -1,0 +1,97 @@
+{% extends 'base.html' %}{% from 'macros.html' import icon, badge %}
+{% block title %}Prediction #{{ record.id }}{% endblock %}
+{% block content %}
+  <div class="container app-container page-content result-page">
+    <div class="page-heading">
+      <div>
+        <span class="eyebrow">ASSESSMENT COMPLETE</span>
+        <h1>Your customer risk snapshot.</h1>
+        <p>
+          Prediction #{{ '%04d'|format(record.id) }} <span class="text-muted">·</span> {{ record.created_at.strftime("%B %d, %Y at %H:%M") }} UTC
+        </p>
+      </div>
+      <a class="btn btn-outline-secondary"
+         href="{{ url_for('prediction.predict') }}">{{ icon("plus") }} New prediction</a>
+    </div>
+    <div class="result-grid">
+      <section class="panel result-card {{ 'churn' if record.prediction == 'Yes' else 'stay' }}">
+        <div class="result-top">
+          <span class="icon-tile {{ 'rose' if record.prediction == 'Yes' else 'teal' }}">{{ icon('chart' if record.prediction == 'Yes' else 'shield') }}</span><span class="status-badge {{ 'danger' if record.risk == 'High' else 'warning' if record.risk == 'Medium' else 'success' }}">{{ record.risk }} risk</span>
+        </div>
+        <span class="eyebrow">MODEL ESTIMATE</span>
+        <h2>{{ 'Likely to Churn' if record.prediction == 'Yes' else 'Likely to Stay' }}</h2>
+        <p>
+          Based on the provided customer information, this customer has a <strong>{{ record.probability|percent }} probability of churn</strong>.
+        </p>
+        <div class="probability-number">
+          {{ '%0.1f'|format(record.probability * 100) }}<span>%</span>
+        </div>
+        <span class="text-muted">Estimated churn probability</span>
+        <div class="risk-progress"
+             role="progressbar"
+             aria-label="Estimated churn probability"
+             aria-valuenow="{{ '%0.1f'|format(record.probability * 100) }}"
+             aria-valuemin="0"
+             aria-valuemax="100">
+          <span style="width:{{ record.probability * 100 }}%"></span>
+        </div>
+        <div class="risk-scale">
+          <span>0% · Lower risk</span><span>100% · Higher risk</span>
+        </div>
+        <div class="result-metrics">
+          <div>
+            <span>Class confidence</span><strong>{{ record.confidence|percent }}</strong>
+          </div>
+          <div>
+            <span>Risk band</span><strong>{{ record.risk }} risk</strong>
+          </div>
+        </div>
+        <small>Class confidence is the model’s probability for the predicted class, rather than a separate measure of certainty.</small>
+      </section>
+      <section class="panel customer-snapshot">
+        <div class="panel-heading">
+          <div>
+            <h2>Customer snapshot</h2>
+            <p>The main details used in this assessment.</p>
+          </div>
+          {{ icon("users") }}
+        </div>
+        <dl class="snapshot-list">
+          {% for field in ['contract', 'tenure', 'internet_service', 'monthly_charges', 'total_charges', 'payment_method', 'tech_support', 'online_security'] %}
+            <div>
+              <dt>{{ labels[field] }}</dt>
+              <dd>
+                {% if field in ['monthly_charges', 'total_charges'] %}
+                  ${{ '%0.2f'|format(record.customer_data[field]) }}
+                {% elif field == 'tenure' %}
+                  {{ record.customer_data[field] }} months
+                {% else %}
+                  {{ record.customer_data[field] }}
+                {% endif %}
+              </dd>
+            </div>
+          {% endfor %}
+        </dl>
+        <div class="saved-note">{{ icon("check-circle") }} This assessment is saved to prediction history.</div>
+        <details class="all-inputs">
+          <summary>View all 19 input fields</summary>
+          <dl class="snapshot-list">
+            {% for field, value in record.customer_data.items() %}
+              <div>
+                <dt>{{ labels[field] }}</dt>
+                <dd>
+                  {{ value }}
+                </dd>
+              </div>
+            {% endfor %}
+          </dl>
+        </details>
+      </section>
+    </div>
+    <div class="info-note result-note">
+      {{ icon("info") }}<span>This estimate comes from a model trained on synthetic telecom data. It does not establish real-world risk, explain causes, or guarantee customer behavior. Model version: {{ record.model_version }}.</span>
+    </div>
+    <a class="back-link"
+       href="{{ url_for('admin.predictions') if current_user.role == 'admin' else url_for('prediction.history') }}">{{ icon("chevron-left") }} Back to prediction history</a>
+  </div>
+{% endblock %}

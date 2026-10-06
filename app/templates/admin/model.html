@@ -1,0 +1,116 @@
+{% extends 'admin/base_admin.html' %}{% from 'macros.html' import icon, stat %}
+{% block title %}Model performance{% endblock %}
+{% block breadcrumb %}Model information{% endblock %}
+{% block content %}
+  <div class="page-heading">
+    <div>
+      <span class="eyebrow">TRANSPARENT BY DESIGN</span>
+      <h1>Model performance</h1>
+      <p>Real evaluation results, read directly from the saved model metadata.</p>
+    </div>
+    <span class="eyebrow-pill">{{ icon("check-circle") }} Trained pipeline</span>
+  </div>
+  <section class="model-banner">
+    <span class="icon-tile">{{ icon("sparkles") }}</span>
+    <div>
+      <span class="eyebrow">SELECTED ALGORITHM</span>
+      <h2>{{ metadata.selected_algorithm }}</h2>
+      <p>{{ metadata.selection_method }}</p>
+    </div>
+    <div class="model-banner-date">
+      <span>Last trained (UTC)</span><strong>{{ metadata.trained_at[:10] }}</strong>
+    </div>
+  </section>
+  <div class="stats-grid four">
+    {{ stat('Accuracy', metadata.metrics.accuracy|percent, 'check-circle', 'Correct predictions / test records') }}{{ stat('Precision', metadata.metrics.precision|percent, 'target', 'True churn / predicted churn', 'blue') }}{{ stat('Recall', metadata.metrics.recall|percent, 'chart', 'Detected churn / actual churn', 'rose') }}{{ stat('F1 score', metadata.metrics.f1|percent, 'sparkles', 'Harmonic mean of precision & recall', 'teal') }}
+  </div>
+  <div class="two-column model-grid">
+    <section class="panel">
+      <div class="panel-heading">
+        <div>
+          <h2>Candidate comparison</h2>
+          <p>Mean F1 from five training folds.</p>
+        </div>
+        <span class="soft-tag">Cross-validation</span>
+      </div>
+      <div class="chart-box model-chart">
+        <canvas data-chart="models"
+                role="img"
+                aria-label="Cross validation model F1 comparison"></canvas>
+      </div>
+      <div class="model-selection-note">Selection never uses the held-out test set.</div>
+    </section>
+    <section class="panel">
+      <div class="panel-heading">
+        <div>
+          <h2>Confusion matrix</h2>
+          <p>{{ metadata.test_size }} held-out customer records.</p>
+        </div>
+        <span class="soft-tag">Threshold 50%</span>
+      </div>
+      <div class="confusion-wrap">
+        <div class="confusion-axis">Predicted class</div>
+        <table class="confusion-matrix">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Stay</th>
+              <th>Churn</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Actual stay</th>
+              <td class="correct">
+                {{ metadata.confusion_matrix[0][0] }}<small>True negative</small>
+              </td>
+              <td>
+                {{ metadata.confusion_matrix[0][1] }}<small>False positive</small>
+              </td>
+            </tr>
+            <tr>
+              <th>Actual churn</th>
+              <td>
+                {{ metadata.confusion_matrix[1][0] }}<small>False negative</small>
+              </td>
+              <td class="correct">
+                {{ metadata.confusion_matrix[1][1] }}<small>True positive</small>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+  <section class="panel training-details">
+    <div class="panel-heading">
+      <div>
+        <h2>Training details</h2>
+        <p>A reproducible pipeline from source data to prediction.</p>
+      </div>
+      {{ icon("database") }}
+    </div>
+    <div class="training-detail-grid">
+      <div>
+        <span>Dataset records</span><strong>{{ '{:,}'.format(metadata.dataset_size) }}</strong>
+      </div>
+      <div>
+        <span>Training / test split</span><strong>{{ '{:,}'.format(metadata.train_size) }} / {{ '{:,}'.format(metadata.test_size) }}</strong>
+      </div>
+      <div>
+        <span>ROC AUC</span><strong>{{ metadata.metrics.roc_auc|percent }}</strong>
+      </div>
+      <div>
+        <span>scikit-learn</span><strong>v{{ metadata.sklearn_version }}</strong>
+      </div>
+    </div>
+    <div class="pipeline-steps">
+      <span>Median + mode imputation</span>{{ icon("arrow-right") }}<span>Scale + one-hot encode</span>{{ icon("arrow-right") }}<span>{{ metadata.selected_algorithm }}</span>
+    </div>
+    <small>Model version: {{ metadata.model_version }} <span>·</span> Random seed: {{ metadata.random_seed }}</small>
+  </section>
+  <div class="info-note mt-4">
+    {{ icon("info") }}<span>{{ metadata.limitations }}</span>
+  </div>
+  <script type="application/json" id="chart-data">{{ {'models': {'labels': metadata.candidates.keys()|list, 'values': metadata.candidates.values()|map(attribute='f1')|list}}|tojson }}</script>
+{% endblock %}

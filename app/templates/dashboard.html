@@ -1,0 +1,73 @@
+{% extends 'base.html' %}{% from 'macros.html' import icon, stat, prediction_table %}
+{% block title %}Your dashboard{% endblock %}
+{% block content %}
+  <div class="container app-container page-content">
+    <div class="page-heading">
+      <div>
+        <span class="eyebrow">YOUR WORKSPACE</span>
+        <h1>
+          Welcome back, {{ current_user.name.split()[0] }} <span class="wave">✦</span>
+        </h1>
+        <p>Here’s the latest from your customer assessments.</p>
+      </div>
+      <a class="btn btn-primary" href="{{ url_for('prediction.predict') }}">{{ icon("plus") }} New prediction</a>
+    </div>
+    <div class="stats-grid three">
+      {{ stat('Total predictions', stats.total, 'layers', 'All assessments in your workspace') }}{{ stat('Likely to churn', stats.churn, 'chart', 'Model scores at or above 50%', 'rose') }}{{ stat('Likely to stay', stats.stay, 'shield', 'Model scores below 50%', 'teal') }}
+    </div>
+    <div class="dashboard-grid">
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Prediction distribution</h2>
+            <p>A snapshot of your customer assessments.</p>
+          </div>
+          <span class="soft-tag">All time</span>
+        </div>
+        <div class="distribution-layout">
+          <div class="chart-box doughnut">
+            <canvas data-chart="distribution"
+                    aria-label="Churn and stay prediction distribution"
+                    role="img"></canvas>
+          </div>
+          <div class="distribution-info">
+            <strong>{{ stats.rate|percent }}</strong><span>predicted churn rate</span>
+            <div class="chart-legend">
+              <span><i class="legend-dot teal"></i>Likely to stay <b>{{ stats.stay }}</b></span><span><i class="legend-dot purple"></i>Likely to churn <b>{{ stats.churn }}</b></span>
+            </div>
+          </div>
+        </div>
+        {% if not stats.total %}<p class="chart-empty">Your first prediction will bring this chart to life.</p>{% endif %}
+      </section>
+      <section class="insight-card">
+        <span class="icon-tile">{{ icon("sparkles") }}</span><span class="eyebrow">YOUR NEXT ASSESSMENT</span>
+        <h2>
+          Put customer details
+          <br>
+          into perspective.
+        </h2>
+        <p>Explore how services, tenure, and billing relate to the model’s estimate of churn.</p>
+        <a class="btn btn-white" href="{{ url_for('prediction.predict') }}">Make a prediction {{ icon("arrow-right") }}</a>
+        <div class="insight-decoration"></div>
+      </section>
+    </div>
+    <section class="panel table-panel">
+      <div class="panel-heading">
+        <div>
+          <h2>Recent predictions</h2>
+          <p>Your five most recent customer assessments.</p>
+        </div>
+        <a class="text-link" href="{{ url_for('prediction.history') }}">View all history {{ icon("arrow-right") }}</a>
+      </div>
+      {{ prediction_table(records) }}
+    </section>
+    <div class="account-strip">
+      <span class="avatar">{{ current_user.initials }}</span>
+      <div>
+        <strong>{{ current_user.name }}</strong><span>{{ current_user.email }}</span>
+      </div>
+      <span class="soft-tag">{{ current_user.role|capitalize }} account</span><span class="ms-auto text-muted">Member since {{ current_user.created_at.strftime("%B %Y") }}</span>
+    </div>
+  </div>
+  <script type="application/json" id="chart-data">{{ charts|tojson }}</script>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}{% from 'macros.html' import icon %}
+{% block content %}
+  <div class="container app-container error-page">
+    <span class="icon-tile purple">{{ icon("compass") }}</span>
+    <div class="error-code">
+      {% block code %}{% endblock %}
+    </div>
+    <h1>
+      {% block heading %}{% endblock %}
+    </h1>
+    <p>
+      {% block description %}{% endblock %}
+    </p>
+    <a class="btn btn-primary"
+       href="{{ url_for('main.dashboard') if current_user.is_authenticated else url_for('main.index') }}">Back to {{ 'dashboard' if current_user.is_authenticated else 'home' }} {{ icon("arrow-right") }}</a>
+  </div>
+{% endblock %}

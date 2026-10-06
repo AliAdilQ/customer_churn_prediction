@@ -1,0 +1,52 @@
+{% extends 'base.html' %}{% from 'macros.html' import icon %}
+{% block title %}Create an account{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block content %}
+  <div class="container app-container auth-layout">
+    <aside class="auth-story">
+      <span class="eyebrow-pill">YOUR CUSTOMER INSIGHTS START HERE</span>
+      <h1>
+        Small details.
+        <br>
+        <span>Meaningful insights.</span>
+      </h1>
+      <p>Create your account to explore customer churn, track your predictions, and learn from the data.</p>
+      <div class="auth-story-list">
+        <span>{{ icon("sparkles") }} Machine learning, made approachable</span><span>{{ icon("shield") }} Secure sign-in and private history</span><span>{{ icon("chart") }} Designed for discovery</span>
+      </div>
+      <div class="auth-story-note">
+        Customer Churn Prediction <span>by AliAdilQ</span>
+      </div>
+    </aside>
+    <section class="auth-card">
+      <span class="icon-tile purple">{{ icon("users") }}</span>
+      <h2>Create your account</h2>
+      <p>A fresh workspace for your customer assessments.</p>
+      <form method="post" data-loading>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% for name, label, type, placeholder in [('name', 'Full name', 'text', 'Your full name'), ('email', 'Email address', 'email', 'you@company.com'), ('password', 'Password', 'password', 'At least 8 characters'), ('confirm_password', 'Confirm password', 'password', 'Enter the password again')] %}
+          <div class="mb-3">
+            <label class="form-label" for="{{ name }}">{{ label }}</label>
+            <input class="form-control {{ 'is-invalid' if errors.get(name) }}"
+                   id="{{ name }}"
+                   name="{{ name }}"
+                   type="{{ type }}"
+                   autocomplete="{{ 'new-password' if type == 'password' else name }}"
+                   required
+                   minlength="{{ 8 if type == 'password' else 2 if name == 'name' else 3 }}"
+                   maxlength="{{ 128 if type == 'password' else 100 if name == 'name' else 254 }}"
+                   placeholder="{{ placeholder }}"
+                   value="{{ values.get(name, '') if type != 'password' else '' }}"
+                   {% if errors.get(name) %}aria-invalid="true" aria-describedby="{{ name }}-error"{% endif %}>
+            {% if errors.get(name) %}<div id="{{ name }}-error" class="invalid-feedback">{{ errors[name] }}</div>{% endif %}
+          </div>
+        {% endfor %}
+        <button class="btn btn-primary w-100 mt-2" type="submit">Create account {{ icon("arrow-right") }}</button>
+      </form>
+      <div class="auth-switch">
+        Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a>
+      </div>
+      <p class="form-footnote">This demo uses synthetic data. No real customer information is needed.</p>
+    </section>
+  </div>
+{% endblock %}

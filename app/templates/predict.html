@@ -1,0 +1,95 @@
+{% extends 'base.html' %}{% from 'macros.html' import icon %}
+{% block title %}New prediction{% endblock %}
+{% block content %}
+  <div class="container app-container page-content">
+    <div class="page-heading">
+      <div>
+        <span class="eyebrow">CUSTOMER ASSESSMENT</span>
+        <h1>A clearer view of churn risk.</h1>
+        <p>Enter a customer profile. We’ll take care of the analysis.</p>
+      </div>
+      <span class="eyebrow-pill">{{ icon("lock") }} Saved securely to your history</span>
+    </div>
+    <div class="prediction-layout">
+      <form class="prediction-form"
+            method="post"
+            id="prediction-form"
+            data-loading>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% for title, description, fields in groups %}
+          <section class="panel form-panel">
+            <div class="form-section-title">
+              <span class="section-index">0{{ loop.index }}</span>
+              <div>
+                <h2>{{ title }}</h2>
+                <p>{{ description }}</p>
+              </div>
+              {{ icon('users' if loop.index == 1 else 'wifi' if loop.index == 2 else 'credit-card') }}
+            </div>
+            <div class="row g-4">
+              {% for field in fields %}
+                <div class="col-sm-6 {{ 'col-lg-4' if title == 'Services' }}">
+                  <label class="form-label" for="{{ field }}">{{ labels[field] }}</label>
+                  {% if field in categories or field == 'senior_citizen' %}
+                    <select class="form-select {{ 'is-invalid' if errors.get(field) }}"
+                            id="{{ field }}"
+                            name="{{ field }}"
+                            required
+                            {% if errors.get(field) %}aria-invalid="true" aria-describedby="{{ field }}-error"{% endif %}>
+                      {% if field == 'senior_citizen' %}
+                        {% for value, label in [('0', 'No'), ('1', 'Yes')] %}
+                          <option value="{{ value }}" {{ 'selected' if values[field]|string == value }}>{{ label }}
+                          </option>
+                        {% endfor %}
+                      {% else %}
+                        {% for option in categories[field] %}
+                          <option value="{{ option }}" {{ 'selected' if values[field] == option }}>{{ option }}
+                          </option>
+                        {% endfor %}
+                      {% endif %}
+                    </select>
+                  {% else %}
+                    <input class="form-control {{ 'is-invalid' if errors.get(field) }}"
+                           id="{{ field }}"
+                           name="{{ field }}"
+                           type="number"
+                           required
+                           min="0"
+                           max="{{ 120 if field == 'tenure' else 250 if field == 'monthly_charges' else 30000 }}"
+                           step="{{ 1 if field == 'tenure' else '0.01' }}"
+                           value="{{ values[field] }}"
+                           {% if errors.get(field) %}aria-invalid="true" aria-describedby="{{ field }}-error"{% endif %}>
+                  {% endif %}
+                  {% if errors.get(field) %}<div class="invalid-feedback" id="{{ field }}-error">{{ errors[field] }}</div>{% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          </section>
+        {% endfor %}
+        <div class="form-submit">
+          <span>{{ icon("shield") }} 19 signals. One clear assessment.</span>
+          <button type="submit" class="btn btn-primary btn-lg">Analyze customer {{ icon("sparkles") }}</button>
+        </div>
+      </form>
+      <aside class="prediction-aside">
+        <div class="panel guidance-panel">
+          <span class="icon-tile purple">{{ icon("sparkles") }}</span>
+          <h3>What happens next?</h3>
+          <p>Your inputs pass through the same preprocessing pipeline used to train the model.</p>
+          <ul class="check-list">
+            <li>{{ icon("check") }} Churn probability estimate</li>
+            <li>{{ icon("check") }} Low, medium, or high risk</li>
+            <li>{{ icon("check") }} Saved assessment history</li>
+          </ul>
+          <hr>
+          <h4>A thoughtful starting point</h4>
+          <p>Risk bands are display categories: low &lt;35%, medium 35–64.9%, high ≥65%. The prediction threshold is 50%.</p>
+          <div class="info-note">
+            {{ icon("info") }}<span>Trained on synthetic data for demonstration. Avoid entering real customer information.</span>
+          </div>
+        </div>
+        <a class="back-link" href="{{ url_for('main.dashboard') }}">{{ icon("chevron-left") }} Back to your dashboard</a>
+      </aside>
+    </div>
+  </div>
+{% endblock %}

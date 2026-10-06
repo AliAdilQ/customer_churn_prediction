@@ -1,0 +1,70 @@
+{% extends 'admin/base_admin.html' %}{% from 'macros.html' import icon, pagination %}
+{% block title %}Registered users{% endblock %}
+{% block breadcrumb %}Users{% endblock %}
+{% block content %}
+  <div class="page-heading">
+    <div>
+      <span class="eyebrow">PEOPLE IN YOUR WORKSPACE</span>
+      <h1>Registered users</h1>
+      <p>View account details and access roles.</p>
+    </div>
+    <span class="eyebrow-pill">{{ icon("users") }} {{ page.total }} matching accounts</span>
+  </div>
+  <section class="panel table-panel">
+    <div class="panel-heading">
+      <h2>Accounts</h2>
+      <form method="get" class="filter-form">
+        <label class="visually-hidden" for="q">Search users by name or email</label>
+        <div class="search-field">
+          {{ icon("search") }}
+          <input class="form-control"
+                 id="q"
+                 name="q"
+                 value="{{ search }}"
+                 placeholder="Search name or email"
+                 maxlength="100">
+        </div>
+        <button class="btn btn-outline-secondary" type="submit">Search</button>
+      </form>
+    </div>
+    <div class="table-responsive">
+      <table class="table app-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email address</th>
+            <th>Role</th>
+            <th>Registered (UTC)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in page.items %}
+            <tr>
+              <td>
+                <div class="table-person">
+                  <span class="avatar">{{ user.initials }}</span><strong>{{ user.name }}</strong>
+                </div>
+              </td>
+              <td>{{ user.email }}</td>
+              <td>
+                <span class="status-badge {{ 'purple-badge' if user.role == 'admin' else 'neutral' }}">{{ icon('shield' if user.role == 'admin' else 'users') }} {{ user.role|capitalize }}</span>
+              </td>
+              <td>{{ user.created_at.strftime("%b %d, %Y") }}</td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="4">
+                <div class="empty-state">
+                  <h3>No matching users</h3>
+                  <p>Try another name or email address.</p>
+                  <a href="{{ url_for('admin.users') }}">Clear search</a>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {{ pagination(page, 'admin.users', {'q': search}) }}
+  </section>
+{% endblock %}

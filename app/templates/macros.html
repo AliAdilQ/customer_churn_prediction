@@ -1,0 +1,114 @@
+{% macro icon(name, extra='') -%}
+  <svg class="icon {{ extra }}" aria-hidden="true">
+    <use href="{{ url_for('static', filename='images/icons.svg') }}#{{ name }}"></use>
+  </svg>
+{%- endmacro %}
+{% macro stat(label, value, symbol, note='', tone='purple') -%}
+  <div class="stat-card">
+    <div class="stat-top">
+      <span>{{ label }}</span><span class="icon-tile {{ tone }}">{{ icon(symbol) }}</span>
+    </div>
+    <div class="stat-value">{{ value }}</div>
+    <div class="stat-note">{{ note }}</div>
+  </div>
+{%- endmacro %}
+{% macro badge(record) -%}
+  <span class="status-badge {{ 'danger' if record.prediction == 'Yes' else 'success' }}"><span class="status-dot"></span>{{ 'Likely to churn' if record.prediction == 'Yes' else 'Likely to stay' }}</span>{%- endmacro %}
+  {% macro pagination(page, endpoint, params={}) -%}
+    <div class="table-pagination">
+      <span>Showing {{ (page.page - 1) * page.per_page + 1 if page.total else 0 }}–{{ [page.page * page.per_page, page.total]|min }} of {{ page.total }} records</span>
+      <nav aria-label="Table pages">
+        <ul class="pagination pagination-sm mb-0">
+          <li class="page-item {{ 'disabled' if not page.has_prev }}">
+            <a class="page-link"
+               href="{{ url_for(endpoint, page=page.prev_num, **params) if page.has_prev else '#' }}"
+               aria-label="Previous page">{{ icon("chevron-left") }}</a>
+          </li>
+          {% for number in page.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=1) %}
+            {% if number %}
+              <li class="page-item {{ 'active' if number == page.page }}">
+                <a class="page-link"
+                   href="{{ url_for(endpoint, page=number, **params) }}">{{ number }}</a>
+              </li>
+            {% else %}
+              <li class="page-item disabled">
+                <span class="page-link">…</span>
+              </li>
+            {% endif %}
+          {% endfor %}
+          <li class="page-item {{ 'disabled' if not page.has_next }}">
+            <a class="page-link"
+               href="{{ url_for(endpoint, page=page.next_num, **params) if page.has_next else '#' }}"
+               aria-label="Next page">{{ icon("arrow-right") }}</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  {%- endmacro %}
+  {% macro prediction_table(records, admin=false) -%}
+    <div class="table-responsive">
+      <table class="table app-table mb-0">
+        <thead>
+          <tr>
+            <th>{{ 'User / record' if admin else 'Record' }}</th>
+            <th>Customer account</th>
+            <th>Prediction</th>
+            <th>Churn probability</th>
+            <th>
+              Date <span class="text-muted">(UTC)</span>
+            </th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for record in records %}
+            <tr>
+              <td>
+                {% if admin %}
+                  <div class="table-person">
+                    <span class="avatar small">{{ record.user.initials }}</span>
+                    <div>
+                      <strong>{{ record.user.name }}</strong><small>#{{ '%04d'|format(record.id) }}</small>
+                    </div>
+                  </div>
+                {% else %}
+                  <strong>#{{ '%04d'|format(record.id) }}</strong>
+                {% endif %}
+              </td>
+              <td>
+                <strong>{{ record.customer_data.contract }}</strong><small>{{ record.customer_data.internet_service }} · {{ record.customer_data.tenure }} months</small>
+              </td>
+              <td>{{ badge(record) }}</td>
+              <td>
+                <div class="prob-cell">
+                  <span>{{ record.probability|percent }}</span>
+                  <div class="mini-progress">
+                    <span class="{{ 'risk-high' if record.probability >= 0.65 else 'risk-medium' if record.probability >= 0.35 else 'risk-low' }}"
+                          style="width:{{ record.probability * 100 }}%"></span>
+                  </div>
+                </div>
+              </td>
+              <td>{{ record.created_at.strftime("%b %d, %Y") }}</td>
+              <td>
+                <a class="table-action"
+                   href="{{ url_for('prediction.result', prediction_id=record.id) }}"
+                   aria-label="View prediction {{ record.id }}">{{ icon("arrow-up-right") }}</a>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="6">
+                <div class="empty-state">
+                  {{ icon("layers") }}
+                  <h3>No predictions yet</h3>
+                  <p>Run a customer assessment to see insights here.</p>
+                  <a class="btn btn-primary btn-sm"
+                     href="{{ url_for('prediction.predict') }}">Make a prediction</a>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {%- endmacro %}
